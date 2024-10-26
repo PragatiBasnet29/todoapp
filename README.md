@@ -26,7 +26,7 @@ A simple to-do list application built with Python's Tkinter library, designed to
 3. Run the following command:
 
     ```bash
-    python todo_notebook.py
+    python app.py
     ```
 
 4. The To-Do List Notebook app window should open.
