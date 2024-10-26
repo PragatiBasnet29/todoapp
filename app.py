@@ -3,7 +3,7 @@ from tkinter import messagebox, font
 
 # Initialize the main app window
 app = tk.Tk()
-app.title("To-Do List")
+app.title("To-Do List Notebook")
 app.geometry("450x500")
 app.config(bg="#f0f4f8")
 
@@ -13,10 +13,10 @@ task_font = font.Font(family="Arial", size=12)
 button_color = "#4CAF50"
 button_hover_color = "#45a049"
 task_complete_color = "#2e8b57"
+notebook_color = "#FFF8DC"  # Light beige to mimic a notebook page
 
 # Task list to hold tasks
 todo_list = []
-
 
 # Functions to manage tasks
 def add_task():
@@ -24,7 +24,7 @@ def add_task():
     task_text = entry_task.get()
     if task_text:
         task_var = tk.BooleanVar()
-        task_frame = tk.Frame(app, bg="#f0f4f8", padx=5, pady=3)
+        task_frame = tk.Frame(task_list_frame, bg=notebook_color, padx=5, pady=3)
 
         checkbox = tk.Checkbutton(
             task_frame,
@@ -32,7 +32,7 @@ def add_task():
             variable=task_var,
             command=lambda: toggle_complete(task_var, checkbox),
             font=task_font,
-            bg="#f0f4f8",
+            bg=notebook_color,
             fg="black",
             selectcolor="white",
             activeforeground=button_color
@@ -40,11 +40,10 @@ def add_task():
 
         checkbox.pack(anchor="w", pady=2)
         todo_list.append({"task": task_text, "completed": task_var, "frame": task_frame})
-        task_frame.pack(anchor="w", padx=10, pady=5)
+        task_frame.pack(anchor="w", padx=10, pady=5, fill="x")
         entry_task.delete(0, tk.END)
     else:
         messagebox.showwarning("Input Error", "Please enter a task!")
-
 
 def toggle_complete(task_var, checkbox):
     """Update the checkbox color when the task is marked complete or incomplete."""
@@ -53,51 +52,57 @@ def toggle_complete(task_var, checkbox):
     else:
         checkbox.config(fg="black", font=task_font)
 
-
 def delete_completed_tasks():
-    """Delete all completed tasks from the list."""
+    """Delete only ticked tasks from the list."""
     global todo_list
-    todo_list = [task for task in todo_list if not task["completed"].get()]
+    for task in todo_list[:]:
+        if task["completed"].get():
+            task["frame"].destroy()
+            todo_list.remove(task)
     update_task_list()
-
 
 def update_task_list():
     """Refresh the display of tasks."""
-    for widget in app.winfo_children():
-        if isinstance(widget, tk.Frame) and widget != frame_task:
-            widget.destroy()
+    for widget in task_list_frame.winfo_children():
+        widget.destroy()
     for task in todo_list:
-        task["frame"].pack(anchor="w", padx=10, pady=5)
-
+        task["frame"].pack(anchor="w", padx=10, pady=5, fill="x")
 
 def on_hover(button, color):
     """Change button color on hover."""
     button.config(bg=color)
 
-
 # Header
-header = tk.Label(app, text="My Stylish To-Do List", font=header_font, bg="#f0f4f8", fg=button_color)
+header = tk.Label(app, text="My Notebook To-Do List", font=header_font, bg="#f0f4f8", fg=button_color)
 header.pack(pady=10)
 
-# Entry and buttons frame
+# Notebook look-alike frame for tasks with lines
+task_list_frame = tk.Canvas(app, bg=notebook_color, bd=0, highlightthickness=0)
+task_list_frame.pack(expand=True, fill="both", padx=15, pady=10)
+
+# Draw lines to mimic notebook paper
+for i in range(0, 500, 20):
+    task_list_frame.create_line(10, i, 440, i, fill="#d3d3d3")
+
+# Frame for entry, add, and delete buttons
 frame_task = tk.Frame(app, bg="#f0f4f8")
 frame_task.pack(pady=15)
 
 # Entry for new tasks
-entry_task = tk.Entry(frame_task, width=35, font=task_font, relief="solid", bd=1)
+entry_task = tk.Entry(frame_task, width=30, font=task_font, relief="solid", bd=1)
 entry_task.pack(side=tk.LEFT, padx=10)
 
-# Add Task button
-button_add_task = tk.Button(frame_task, text="Add Task", command=add_task, font=task_font, bg=button_color, fg="white",
-                            relief="flat", padx=10, pady=5)
+# "+" button for adding tasks
+button_add_task = tk.Button(frame_task, text="+", command=add_task, font=("Arial", 20, "bold"), bg=button_color, fg="white",
+                            relief="flat", width=3, height=1)
 button_add_task.pack(side=tk.LEFT)
 button_add_task.bind("<Enter>", lambda e: on_hover(button_add_task, button_hover_color))
 button_add_task.bind("<Leave>", lambda e: on_hover(button_add_task, button_color))
 
-# Delete Completed Tasks button
-button_delete_task = tk.Button(app, text="Delete Completed Tasks", command=delete_completed_tasks, font=task_font,
-                               bg=button_color, fg="white", relief="flat", padx=15, pady=5)
-button_delete_task.pack(pady=20)
+# Delete button for deleting only completed tasks
+button_delete_task = tk.Button(app, text="Delete completed task", command=delete_completed_tasks, font=task_font,
+                               bg=button_color, fg="white", relief="flat", padx=10, pady=5)
+button_delete_task.pack(pady=10)
 button_delete_task.bind("<Enter>", lambda e: on_hover(button_delete_task, button_hover_color))
 button_delete_task.bind("<Leave>", lambda e: on_hover(button_delete_task, button_color))
 
