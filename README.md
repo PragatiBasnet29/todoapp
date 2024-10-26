@@ -11,7 +11,8 @@ A simple to-do list application built with Python's Tkinter library, designed to
 
 ## Screenshot
 
-*(Add a screenshot of your app here for better visuals)*
+![To-Do List Notebook Screenshot](assets/screenshot.png)
+
 
 ## Requirements
 
